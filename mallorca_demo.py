@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 import time
 
-openai.api_key = st.secrets["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"]
+openai.api_key = "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"
 ASSISTANT_ID = "asst_PId1gsRrfl1i1FBNlvixl6fZ"
 
 st.title("OfMallorca Travel Assistant 🏝️")
