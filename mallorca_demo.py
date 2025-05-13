@@ -1,0 +1,47 @@
+import streamlit as st
+import openai
+import time
+
+openai.api_key = "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"
+ASSISTANT_ID = "asst_PId1gsRrfl1i1FBNlvixl6fZ"
+
+st.title("OfMallorca Travel Assistant 🏝️")
+
+if "thread_id" not in st.session_state:
+    thread = openai.beta.threads.create()
+    st.session_state.thread_id = thread.id
+    st.session_state.messages = []
+
+user_input = st.text_input("Ask anything about Mallorca 🌞")
+
+if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
+    openai.beta.threads.messages.create(
+        thread_id=st.session_state.thread_id,
+        role="user",
+        content=user_input
+    )
+
+    run = openai.beta.threads.runs.create(
+        thread_id=st.session_state.thread_id,
+        assistant_id=ASSISTANT_ID
+    )
+
+    while True:
+        run_status = openai.beta.threads.runs.retrieve(
+            thread_id=st.session_state.thread_id,
+            run_id=run.id
+        )
+        if run_status.status == "completed":
+            break
+        time.sleep(1)
+
+    messages = openai.beta.threads.messages.list(
+        thread_id=st.session_state.thread_id
+    )
+    last_message = messages.data[0].content[0].text.value
+    st.session_state.messages.append({"role": "assistant", "content": last_message})
+
+for msg in st.session_state.messages:
+    role = "🧑" if msg["role"] == "user" else "🤖"
+    st.write(f"{role}: {msg['content']}")
